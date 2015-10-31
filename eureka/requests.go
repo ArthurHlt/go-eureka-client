@@ -362,9 +362,9 @@ func (c *Client) getHttpPath(random bool, s ...string) string {
 		machine = c.cluster.Leader
 	}
 
-	fullPath := machine + "/eureka/" + version
+	fullPath := machine
 	for _, seg := range s {
-		fullPath = fullPath + "/" + seg
+		fullPath += "/" + seg
 	}
 
 	return fullPath
