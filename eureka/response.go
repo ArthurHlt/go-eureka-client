@@ -10,6 +10,7 @@ type RawResponse struct {
 
 var (
 	validHttpStatusCode = map[int]bool{
+		http.StatusNoContent:          true,
 		http.StatusCreated:            true,
 		http.StatusOK:                 true,
 		http.StatusBadRequest:         true,

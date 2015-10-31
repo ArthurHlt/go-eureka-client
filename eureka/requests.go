@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"sync"
 	"time"
+	"strconv"
 )
 
 // Errors introduced by handling requests
@@ -24,41 +25,73 @@ type RawRequest struct {
 	body         []byte
 	cancel       <-chan bool
 }
-
+type Applications struct {
+	VersionsDelta int           `xml:"versions__delta"`
+	AppsHashcode  string        `xml:"apps__hashcode"`
+	Applications  []Application `xml:"application,omitempty"`
+}
+type Application struct {
+	Name      string         `xml:"name"`
+	Instances []InstanceInfo `xml:"instance"`
+}
+type Instance struct {
+	Instance *InstanceInfo `xml:"instance" json:"instance"`
+}
+type Port struct {
+	Port    int  `xml:",chardata" json:"$"`
+	Enabled bool `xml:"enabled,attr" json:"@enabled"`
+}
 type InstanceInfo struct {
-	HostName       string            `json:"hostName"`
-	App            string            `json:"app"`
-	IpAddr         string            `json:"ipAddr"`
-	VipAddress     string            `json:"vipAddress"`
-	Status         string            `json:"status"`
-	Port           uint              `json:"port"`
-	SecurePort     uint              `json:"securePort"`
-	DataCenterInfo *DataCenterInfo   `json:"dataCenterInfo"`
-	LeaseInfo      *LeaseInfo        `json:"leaseInfo"`
-	Metadata       map[string]string `json:"metadata"`
+	HostName                      string            `xml:"hostName" json:"hostName"`
+	HomePageUrl                   string            `xml:"homePageUrl,omitempty" json:"homePageUrl,omitempty"`
+	StatusPageUrl                 string            `xml:"statusPageUrl" json:"statusPageUrl"`
+	HealthCheckUrl                string            `xml:"healthCheckUrl,omitempty" json:"healthCheckUrl,omitempty"`
+	App                           string            `xml:"app" json:"app"`
+	IpAddr                        string            `xml:"ipAddr" json:"ipAddr"`
+	VipAddress                    string            `xml:"vipAddress" json:"vipAddress"`
+	secureVipAddress              string            `xml:"secureVipAddress,omitempty" json:"secureVipAddress,omitempty"`
+	Status                        string            `xml:"status" json:"status"`
+	Port                          *Port             `xml:"port,omitempty" json:"port,omitempty"`
+	SecurePort                    *Port             `xml:"securePort,omitempty" json:"securePort,omitempty"`
+	DataCenterInfo                *DataCenterInfo   `xml:"dataCenterInfo" json:"dataCenterInfo"`
+	LeaseInfo                     *LeaseInfo        `xml:"leaseInfo,omitempty" json:"leaseInfo,omitempty"`
+	Metadata                      map[string]string `json:"metadata,omitempty"`
+	IsCoordinatingDiscoveryServer bool              `xml:"isCoordinatingDiscoveryServer,omitempty" json:"isCoordinatingDiscoveryServer,omitempty"`
+	LastUpdatedTimestamp          int               `xml:"lastUpdatedTimestamp,omitempty" json:"lastUpdatedTimestamp,omitempty"`
+	LastDirtyTimestamp            int               `xml:"lastDirtyTimestamp,omitempty" json:"lastDirtyTimestamp,omitempty"`
+	ActionType                    string            `xml:"actionType,omitempty" json:"actionType,omitempty"`
+	Overriddenstatus              string            `xml:"overriddenstatus,omitempty" json:"overriddenstatus,omitempty"`
+	CountryId                     int               `xml:"countryId,omitempty" json:"countryId,omitempty"`
+
 }
 
 type DataCenterInfo struct {
-	Name     string             `json:"name"`
-	Metadata DataCenterMetadata `json:"metadata"`
+	Name     string             `xml:"name" json:"name"`
+	Metadata DataCenterMetadata `xml:"metadata" json:"metadata"`
 }
 
 type DataCenterMetadata struct {
-	AmiLaunchIndex   string `json:"ami-launch-index"`
-	LocalHostname    string `json:"local-hostname"`
-	AvailabilityZone string `json:"availability-zone"`
-	InstanceId       string `json:"instance-id"`
-	PublicIpv4       string `json:"public-ipv4"`
-	PublicHostname   string `json:"public-hostname"`
-	AmiManifestPath  string `json:"ami-manifest-path"`
-	LocalIpv4        string `json:"local-ipv4`
-	Hostname         string `json:"hostname"`
-	AmiId            string `json:"ami-id"`
-	InstanceType     string `json:"instance-type"`
+	AmiLaunchIndex   string `xml:"ami-launch-index" json:"ami-launch-index"`
+	LocalHostname    string `xml:"local-hostname" json:"local-hostname"`
+	AvailabilityZone string `xml:"availability-zone" json:"availability-zone"`
+	InstanceId       string `xml:"instance-id" json:"instance-id"`
+	PublicIpv4       string `xml:"public-ipv4" json:"public-ipv4"`
+	PublicHostname   string `xml:"public-hostname" json:"public-hostname"`
+	AmiManifestPath  string `xml:"ami-manifest-path" json:"ami-manifest-path"`
+	LocalIpv4        string `xml:"local-ipv4" json:"local-ipv4"`
+	Hostname         string `xml:"hostname" json:"hostname"`
+	AmiId            string `xml:"ami-id" json:"ami-id"`
+	InstanceType     string `xml:"instance-type" json:"instance-type"`
 }
 
 type LeaseInfo struct {
-	EvictionDurationInSecs uint `json:"evictionDurationInSecs"`
+	EvictionDurationInSecs uint `xml:"evictionDurationInSecs,omitempty" json:"evictionDurationInSecs,omitempty"`
+	RenewalIntervalInSecs  int `xml:"renewalIntervalInSecs,omitempty" json:"renewalIntervalInSecs,omitempty"`
+	DurationInSecs         int `xml:"durationInSecs,omitempty" json:"durationInSecs,omitempty"`
+	RegistrationTimestamp  int `xml:"registrationTimestamp,omitempty" json:"registrationTimestamp,omitempty"`
+	LastRenewalTimestamp   int `xml:"lastRenewalTimestamp,omitempty" json:"lastRenewalTimestamp,omitempty"`
+	EvictionTimestamp      int `xml:"evictionTimestamp,omitempty" json:"evictionTimestamp,omitempty"`
+	ServiceUpTimestamp     int `xml:"serviceUpTimestamp,omitempty" json:"serviceUpTimestamp,omitempty"`
 }
 
 func NewRawRequest(method, relativePath string, body []byte, cancel <-chan bool) *RawRequest {
@@ -70,30 +103,49 @@ func NewRawRequest(method, relativePath string, body []byte, cancel <-chan bool)
 	}
 }
 
-func NewInstanceInfo(hostName, app, ip string, port, ttl uint) *InstanceInfo {
+func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *InstanceInfo {
 	dataCenterInfo := &DataCenterInfo{
 		Name: "MyOwn",
 	}
 	leaseInfo := &LeaseInfo{
 		EvictionDurationInSecs: ttl,
 	}
-	return &InstanceInfo{
+	instanceInfo := &InstanceInfo{
 		HostName:       hostName,
 		App:            app,
 		IpAddr:         ip,
-		VipAddress:     hostName + ":" + string(port),
 		Status:         UP,
-		Port:           port,
-		SecurePort:     port,
 		DataCenterInfo: dataCenterInfo,
 		LeaseInfo:      leaseInfo,
 		Metadata:       nil,
+
 	}
+	stringPort := ""
+	if (port != 80 && port != 443) {
+		stringPort = ":" + strconv.Itoa(port)
+	}
+	var protocol string = "http"
+	if (isSsl) {
+		protocol = "https"
+		instanceInfo.secureVipAddress = protocol + "://" + hostName + stringPort
+		instanceInfo.SecurePort = &Port{
+			Port: port,
+			Enabled: true,
+		}
+	}else {
+		instanceInfo.VipAddress = protocol + "://" + hostName + stringPort
+		instanceInfo.Port = &Port{
+			Port: port,
+			Enabled: true,
+		}
+	}
+	instanceInfo.StatusPageUrl = protocol + "://" + hostName + stringPort + "/info"
+	return instanceInfo
 }
 
 // getCancelable issues a cancelable GET request
 func (c *Client) getCancelable(endpoint string,
-	cancel <-chan bool) (*RawResponse, error) {
+cancel <-chan bool) (*RawResponse, error) {
 	logger.Debugf("get %s [%s]", endpoint, c.cluster.Leader)
 	p := endpoint
 
@@ -210,7 +262,7 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 	sleep := 25 * time.Millisecond
 	maxSleep := time.Second
 
-	for attempt := 0; ; attempt++ {
+	for attempt := 0;; attempt++ {
 		if attempt > 0 {
 			select {
 			case <-cancelled:
@@ -223,7 +275,7 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			}
 		}
 
-		logger.Debug("Connecting to eureka: attempt ", attempt+1, " for ", rr.relativePath)
+		logger.Debug("Connecting to eureka: attempt ", attempt + 1, " for ", rr.relativePath)
 
 		httpPath = c.getHttpPath(false, rr.relativePath)
 
@@ -337,9 +389,9 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 // If we have retried 2 * machine number, stop retrying.
 // If status code is InternalServerError, sleep for 200ms.
 func DefaultCheckRetry(cluster *Cluster, numReqs int, lastResp http.Response,
-	err error) error {
+err error) error {
 
-	if numReqs >= 2*len(cluster.Machines) {
+	if numReqs >= 2 * len(cluster.Machines) {
 		return newError(ErrCodeEurekaNotReachable,
 			"Tried to connect to each peer twice and failed", 0)
 	}

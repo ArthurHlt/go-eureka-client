@@ -8,7 +8,10 @@ import (
 func (c *Client) RegisterInstance(appId string, instanceInfo *InstanceInfo) error {
 	values := []string{"apps", appId}
 	path := strings.Join(values, "/")
-	body, err := json.Marshal(instanceInfo)
+	instance := &Instance{
+		Instance: instanceInfo,
+	}
+	body, err := json.Marshal(instance)
 	if err != nil {
 		return err
 	}
