@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"encoding/json"
 	"regexp"
-	"fmt"
 )
 // StringMap is a map[string]string.
 type MetaData struct {
@@ -16,8 +15,6 @@ type Vraw struct {
 	Content []byte `xml:",innerxml"`
 }
 
-
-// StringMap marshals into XML.
 func (s *MetaData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
 	tokens := []xml.Token{start}
@@ -55,12 +52,9 @@ func (s *MetaData) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		return err
 	}
 	subMatches := regex.FindAllStringSubmatch(dataInString, -1)
-	fmt.Println(dataInString)
-	fmt.Println(subMatches)
 	for _, subMatch := range subMatches {
 		s.Map[subMatch[1]] = subMatch[2]
 	}
-	fmt.Println(s)
 	return nil
 }
 
