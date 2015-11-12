@@ -55,7 +55,7 @@ type InstanceInfo struct {
 	SecurePort                    *Port             `xml:"securePort,omitempty" json:"securePort,omitempty"`
 	DataCenterInfo                *DataCenterInfo   `xml:"dataCenterInfo" json:"dataCenterInfo"`
 	LeaseInfo                     *LeaseInfo        `xml:"leaseInfo,omitempty" json:"leaseInfo,omitempty"`
-	Metadata                      map[string]string `json:"metadata,omitempty"`
+	Metadata                      *MetaData          `xml:"metadata,omitempty" json:"metadata,omitempty"`
 	IsCoordinatingDiscoveryServer bool              `xml:"isCoordinatingDiscoveryServer,omitempty" json:"isCoordinatingDiscoveryServer,omitempty"`
 	LastUpdatedTimestamp          int               `xml:"lastUpdatedTimestamp,omitempty" json:"lastUpdatedTimestamp,omitempty"`
 	LastDirtyTimestamp            int               `xml:"lastDirtyTimestamp,omitempty" json:"lastDirtyTimestamp,omitempty"`
