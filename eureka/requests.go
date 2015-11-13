@@ -55,7 +55,7 @@ type InstanceInfo struct {
 	SecurePort                    *Port             `xml:"securePort,omitempty" json:"securePort,omitempty"`
 	DataCenterInfo                *DataCenterInfo   `xml:"dataCenterInfo" json:"dataCenterInfo"`
 	LeaseInfo                     *LeaseInfo        `xml:"leaseInfo,omitempty" json:"leaseInfo,omitempty"`
-	Metadata                      *MetaData          `xml:"metadata,omitempty" json:"metadata,omitempty"`
+	Metadata                      *MetaData         `xml:"metadata,omitempty" json:"metadata,omitempty"`
 	IsCoordinatingDiscoveryServer bool              `xml:"isCoordinatingDiscoveryServer,omitempty" json:"isCoordinatingDiscoveryServer,omitempty"`
 	LastUpdatedTimestamp          int               `xml:"lastUpdatedTimestamp,omitempty" json:"lastUpdatedTimestamp,omitempty"`
 	LastDirtyTimestamp            int               `xml:"lastDirtyTimestamp,omitempty" json:"lastDirtyTimestamp,omitempty"`
@@ -64,9 +64,9 @@ type InstanceInfo struct {
 	CountryId                     int               `xml:"countryId,omitempty" json:"countryId,omitempty"`
 
 }
-
 type DataCenterInfo struct {
 	Name     string             `xml:"name" json:"name"`
+	Class    string             `xml:"class,attr" json:"@class"`
 	Metadata DataCenterMetadata `xml:"metadata" json:"metadata"`
 }
 
@@ -118,7 +118,6 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 		DataCenterInfo: dataCenterInfo,
 		LeaseInfo:      leaseInfo,
 		Metadata:       nil,
-
 	}
 	stringPort := ""
 	if (port != 80 && port != 443) {
