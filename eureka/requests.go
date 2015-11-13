@@ -67,21 +67,21 @@ type InstanceInfo struct {
 type DataCenterInfo struct {
 	Name     string             `xml:"name" json:"name"`
 	Class    string             `xml:"class,attr" json:"@class"`
-	Metadata DataCenterMetadata `xml:"metadata" json:"metadata"`
+	Metadata DataCenterMetadata `xml:"metadata,omitempty" json:"metadata,omitempty"`
 }
 
 type DataCenterMetadata struct {
-	AmiLaunchIndex   string `xml:"ami-launch-index" json:"ami-launch-index"`
-	LocalHostname    string `xml:"local-hostname" json:"local-hostname"`
-	AvailabilityZone string `xml:"availability-zone" json:"availability-zone"`
-	InstanceId       string `xml:"instance-id" json:"instance-id"`
-	PublicIpv4       string `xml:"public-ipv4" json:"public-ipv4"`
-	PublicHostname   string `xml:"public-hostname" json:"public-hostname"`
-	AmiManifestPath  string `xml:"ami-manifest-path" json:"ami-manifest-path"`
-	LocalIpv4        string `xml:"local-ipv4" json:"local-ipv4"`
-	Hostname         string `xml:"hostname" json:"hostname"`
-	AmiId            string `xml:"ami-id" json:"ami-id"`
-	InstanceType     string `xml:"instance-type" json:"instance-type"`
+	AmiLaunchIndex   string `xml:"ami-launch-index,omitempty" json:"ami-launch-index,omitempty"`
+	LocalHostname    string `xml:"local-hostname,omitempty" json:"local-hostname,omitempty"`
+	AvailabilityZone string `xml:"availability-zone,omitempty" json:"availability-zone,omitempty"`
+	InstanceId       string `xml:"instance-id,omitempty" json:"instance-id,omitempty"`
+	PublicIpv4       string `xml:"public-ipv4,omitempty" json:"public-ipv4,omitempty"`
+	PublicHostname   string `xml:"public-hostname,omitempty" json:"public-hostname,omitempty"`
+	AmiManifestPath  string `xml:"ami-manifest-path,omitempty" json:"ami-manifest-path,omitempty"`
+	LocalIpv4        string `xml:"local-ipv4,omitempty" json:"local-ipv4,omitempty"`
+	Hostname         string `xml:"hostname,omitempty" json:"hostname,omitempty"`
+	AmiId            string `xml:"ami-id,omitempty" json:"ami-id,omitempty"`
+	InstanceType     string `xml:"instance-type,omitempty" json:"instance-type,omitempty"`
 }
 
 type LeaseInfo struct {
