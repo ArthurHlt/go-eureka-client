@@ -16,6 +16,6 @@ func (c *Client) RegisterInstance(appId string, instanceInfo *InstanceInfo) erro
 		return err
 	}
 
-	_, err = c.post(path, body)
+	_, err = c.Post(path, body)
 	return err
 }

@@ -159,12 +159,12 @@ cancel <-chan bool) (*RawResponse, error) {
 }
 
 // get issues a GET request
-func (c *Client) get(endpoint string) (*RawResponse, error) {
+func (c *Client) Get(endpoint string) (*RawResponse, error) {
 	return c.getCancelable(endpoint, nil)
 }
 
 // put issues a PUT request
-func (c *Client) put(endpoint string, body []byte) (*RawResponse, error) {
+func (c *Client) Put(endpoint string, body []byte) (*RawResponse, error) {
 
 	logger.Debugf("put %s, %s, [%s]", endpoint, body, c.cluster.Leader)
 	p := endpoint
@@ -180,7 +180,7 @@ func (c *Client) put(endpoint string, body []byte) (*RawResponse, error) {
 }
 
 // post issues a POST request
-func (c *Client) post(endpoint string, body []byte) (*RawResponse, error) {
+func (c *Client) Post(endpoint string, body []byte) (*RawResponse, error) {
 	logger.Debugf("post %s, %s, [%s]", endpoint, body, c.cluster.Leader)
 	p := endpoint
 
@@ -195,7 +195,7 @@ func (c *Client) post(endpoint string, body []byte) (*RawResponse, error) {
 }
 
 // delete issues a DELETE request
-func (c *Client) delete(endpoint string) (*RawResponse, error) {
+func (c *Client) Delete(endpoint string) (*RawResponse, error) {
 	logger.Debugf("delete %s [%s]", endpoint, c.cluster.Leader)
 	p := endpoint
 

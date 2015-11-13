@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Client) GetApplications() (*Applications, error) {
-	response, err := c.get("apps");
+	response, err := c.Get("apps");
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +17,7 @@ func (c *Client) GetApplications() (*Applications, error) {
 func (c *Client) GetApplication(appId string) (*Application, error) {
 	values := []string{"apps", appId}
 	path := strings.Join(values, "/")
-	response, err := c.get(path);
+	response, err := c.Get(path);
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (c *Client) GetApplication(appId string) (*Application, error) {
 func (c *Client) GetInstance(appId, instanceId string) (*InstanceInfo, error) {
 	values := []string{"apps", appId, instanceId}
 	path := strings.Join(values, "/")
-	response, err := c.get(path);
+	response, err := c.Get(path);
 	if err != nil {
 		return nil, err
 	}
