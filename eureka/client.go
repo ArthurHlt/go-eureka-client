@@ -70,7 +70,7 @@ func NewClient(machines []string) *Client {
 }
 
 // NewTLSClient create a basic client with TLS configuration
-func NewTLSClient(machines []string, cert, key string, caCerts []string) (*Client, error) {
+func NewTLSClient(machines []string, cert string, key string, caCerts []string) (*Client, error) {
 	// overwrite the default machine to use https
 	if len(machines) == 0 {
 		machines = []string{"https://127.0.0.1:4001"}
