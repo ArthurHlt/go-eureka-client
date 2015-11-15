@@ -70,7 +70,7 @@ func NewClient(machines []string) *Client {
 }
 
 // NewTLSClient create a basic client with TLS configuration
-func NewTLSClient(machines []string, cert, key, caCert string) (*Client, error) {
+func NewTLSClient(machines []string, cert, key string, caCerts []string) (*Client, error) {
 	// overwrite the default machine to use https
 	if len(machines) == 0 {
 		machines = []string{"https://127.0.0.1:4001"}
@@ -94,7 +94,11 @@ func NewTLSClient(machines []string, cert, key, caCert string) (*Client, error) 
 		return nil, err
 	}
 
-	err = client.AddRootCA(caCert)
+	for _, caCert := range caCerts {
+		if err := client.AddRootCA(caCert); err != nil {
+			return nil, err
+		}
+	}
 	return client, nil
 }
 
