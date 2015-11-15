@@ -61,8 +61,8 @@ func NewClient(machines []string) *Client {
 	}
 
 	client := &Client{
-		cluster: NewCluster(machines),
-		config:  config,
+		Cluster: NewCluster(machines),
+		Config:  config,
 	}
 
 	client.initHTTPClient()
@@ -85,8 +85,8 @@ func NewTLSClient(machines []string, cert, key, caCert string) (*Client, error) 
 	}
 
 	client := &Client{
-		cluster: NewCluster(machines),
-		config:  config,
+		Cluster: NewCluster(machines),
+		Config:  config,
 	}
 
 	err := client.initHTTPSClient(cert, key)
@@ -129,17 +129,17 @@ func NewClientFromReader(reader io.Reader) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	if c.config.CertFile == "" {
+	if c.Config.CertFile == "" {
 		c.initHTTPClient()
 	} else {
-		err = c.initHTTPSClient(c.config.CertFile, c.config.KeyFile)
+		err = c.initHTTPSClient(c.Config.CertFile, c.Config.KeyFile)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	for _, caCert := range c.config.CaCertFile {
+	for _, caCert := range c.Config.CaCertFile {
 		if err := c.AddRootCA(caCert); err != nil {
 			return nil, err
 		}
@@ -191,7 +191,7 @@ func (c *Client) initHTTPSClient(cert, key string) error {
 
 // Sets the DialTimeout value
 func (c *Client) SetDialTimeout(d time.Duration) {
-	c.config.DialTimeout = d
+	c.Config.DialTimeout = d
 }
 
 // AddRootCA adds a root CA cert for the eureka client
@@ -226,7 +226,7 @@ func (c *Client) AddRootCA(caCert string) error {
 		err = errors.New("Unable to load caCert")
 	}
 
-	c.config.CaCertFile = append(c.config.CaCertFile, caCert)
+	c.Config.CaCertFile = append(c.Config.CaCertFile, caCert)
 	return err
 }
 
@@ -237,12 +237,12 @@ func (c *Client) SetCluster(machines []string) bool {
 }
 
 func (c *Client) GetCluster() []string {
-	return c.cluster.Machines
+	return c.Cluster.Machines
 }
 
 // SyncCluster updates the cluster information using the internal machine list.
 func (c *Client) SyncCluster() bool {
-	return c.internalSyncCluster(c.cluster.Machines)
+	return c.internalSyncCluster(c.Cluster.Machines)
 }
 
 // internalSyncCluster syncs cluster information using the given machine list.
@@ -262,13 +262,13 @@ func (c *Client) internalSyncCluster(machines []string) bool {
 			}
 
 			// update Machines List
-			c.cluster.updateFromStr(string(b))
+			c.Cluster.updateFromStr(string(b))
 
 			// update leader
 			// the first one in the machine list is the leader
-			c.cluster.switchLeader(0)
+			c.Cluster.switchLeader(0)
 
-			logger.Debug("sync.machines ", c.cluster.Machines)
+			logger.Debug("sync.machines ", c.Cluster.Machines)
 			return true
 		}
 	}
@@ -294,7 +294,7 @@ func (c *Client) createHttpPath(serverName string, _path string) string {
 // dial attempts to open a TCP connection to the provided address, explicitly
 // enabling keep-alives with a one-second interval.
 func (c *Client) dial(network, addr string) (net.Conn, error) {
-	conn, err := net.DialTimeout(network, addr, c.config.DialTimeout)
+	conn, err := net.DialTimeout(network, addr, c.Config.DialTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -323,8 +323,8 @@ func (c *Client) MarshalJSON() ([]byte, error) {
 		Config  Config   `json:"config"`
 		Cluster *Cluster `json:"cluster"`
 	}{
-		Config:  c.config,
-		Cluster: c.cluster,
+		Config:  c.Config,
+		Cluster: c.Cluster,
 	})
 
 	if err != nil {
@@ -346,7 +346,7 @@ func (c *Client) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	c.cluster = temp.Cluster
-	c.config = temp.Config
+	c.Cluster = temp.Cluster
+	c.Config = temp.Config
 	return nil
 }

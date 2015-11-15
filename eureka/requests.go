@@ -145,7 +145,7 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 // getCancelable issues a cancelable GET request
 func (c *Client) getCancelable(endpoint string,
 cancel <-chan bool) (*RawResponse, error) {
-	logger.Debugf("get %s [%s]", endpoint, c.cluster.Leader)
+	logger.Debugf("get %s [%s]", endpoint, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("GET", p, nil, cancel)
@@ -166,7 +166,7 @@ func (c *Client) Get(endpoint string) (*RawResponse, error) {
 // put issues a PUT request
 func (c *Client) Put(endpoint string, body []byte) (*RawResponse, error) {
 
-	logger.Debugf("put %s, %s, [%s]", endpoint, body, c.cluster.Leader)
+	logger.Debugf("put %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("PUT", p, body, nil)
@@ -181,7 +181,7 @@ func (c *Client) Put(endpoint string, body []byte) (*RawResponse, error) {
 
 // post issues a POST request
 func (c *Client) Post(endpoint string, body []byte) (*RawResponse, error) {
-	logger.Debugf("post %s, %s, [%s]", endpoint, body, c.cluster.Leader)
+	logger.Debugf("post %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("POST", p, body, nil)
@@ -196,7 +196,7 @@ func (c *Client) Post(endpoint string, body []byte) (*RawResponse, error) {
 
 // delete issues a DELETE request
 func (c *Client) Delete(endpoint string) (*RawResponse, error) {
-	logger.Debugf("delete %s [%s]", endpoint, c.cluster.Leader)
+	logger.Debugf("delete %s [%s]", endpoint, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("DELETE", p, nil, nil)
@@ -317,11 +317,11 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 		if err != nil {
 			logger.Debug("network error: ", err.Error())
 			lastResp := http.Response{}
-			if checkErr := checkRetry(c.cluster, numReqs, lastResp, err); checkErr != nil {
+			if checkErr := checkRetry(c.Cluster, numReqs, lastResp, err); checkErr != nil {
 				return nil, checkErr
 			}
 
-			c.cluster.switchLeader(attempt % len(c.cluster.Machines))
+			c.Cluster.switchLeader(attempt % len(c.Cluster.Machines))
 			continue
 		}
 
@@ -361,14 +361,14 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			} else {
 				// Update cluster leader based on redirect location
 				// because it should point to the leader address
-				c.cluster.updateLeaderFromURL(u)
+				c.Cluster.updateLeaderFromURL(u)
 				logger.Debug("recv.response.relocate ", u.String())
 			}
 			resp.Body.Close()
 			continue
 		}
 
-		if checkErr := checkRetry(c.cluster, numReqs, *resp,
+		if checkErr := checkRetry(c.Cluster, numReqs, *resp,
 			errors.New("Unexpected HTTP status code")); checkErr != nil {
 			return nil, checkErr
 		}
@@ -408,9 +408,9 @@ err error) error {
 func (c *Client) getHttpPath(random bool, s ...string) string {
 	var machine string
 	if random {
-		machine = c.cluster.Machines[rand.Intn(len(c.cluster.Machines))]
+		machine = c.Cluster.Machines[rand.Intn(len(c.Cluster.Machines))]
 	} else {
-		machine = c.cluster.Leader
+		machine = c.Cluster.Leader
 	}
 
 	fullPath := machine
