@@ -274,11 +274,11 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			}
 		}
 
-		logger.Debug("Connecting to eureka: attempt ", attempt + 1, " for ", rr.relativePath)
+		logger.Debug("Connecting to eureka: attempt %d for %s", attempt + 1, rr.relativePath)
 
 		httpPath = c.getHttpPath(false, rr.relativePath)
 
-		logger.Debug("send.request.to ", httpPath, " | method ", rr.method)
+		logger.Debug("send.request.to %s | method %s", httpPath, rr.method)
 
 		req, err := func() (*http.Request, error) {
 			reqLock.Lock()
@@ -315,7 +315,7 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 
 		// network error, change a machine!
 		if err != nil {
-			logger.Error("network error: ", err.Error())
+			logger.Error("network error: %v", err.Error())
 			lastResp := http.Response{}
 			if checkErr := checkRetry(c.Cluster, numReqs, lastResp, err); checkErr != nil {
 				return nil, checkErr
@@ -326,13 +326,13 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 		}
 
 		// if there is no error, it should receive response
-		logger.Debug("recv.response.from ", httpPath)
+		logger.Debug("recv.response.from "+httpPath)
 
 		if validHttpStatusCode[resp.StatusCode] {
 			// try to read byte code and break the loop
 			respBody, err = ioutil.ReadAll(resp.Body)
 			if err == nil {
-				logger.Debug("recv.success ", httpPath)
+				logger.Debug("recv.success "+ httpPath)
 				break
 			}
 			// ReadAll error may be caused due to cancel request
@@ -357,12 +357,12 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			u, err := resp.Location()
 
 			if err != nil {
-				logger.Warning(err)
+				logger.Warning("%v", err)
 			} else {
 				// Update cluster leader based on redirect location
 				// because it should point to the leader address
 				c.Cluster.updateLeaderFromURL(u)
-				logger.Debug("recv.response.relocate ", u.String())
+				logger.Debug("recv.response.relocate "+ u.String())
 			}
 			resp.Body.Close()
 			continue
@@ -401,7 +401,7 @@ err error) error {
 
 	}
 
-	logger.Warning("bad response status code", code)
+	logger.Warning("bad response status code %d", code)
 	return nil
 }
 

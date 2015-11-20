@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"time"
+	"strings"
 )
 
 const (
@@ -272,7 +273,7 @@ func (c *Client) internalSyncCluster(machines []string) bool {
 			// the first one in the machine list is the leader
 			c.Cluster.switchLeader(0)
 
-			logger.Debug("sync.machines ", c.Cluster.Machines)
+			logger.Debug("sync.machines " + strings.Join(c.Cluster.Machines, ", "))
 			return true
 		}
 	}
