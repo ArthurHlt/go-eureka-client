@@ -40,7 +40,7 @@ func handleError(b []byte) error {
 
 	err := json.Unmarshal(b, eurekaErr)
 	if err != nil {
-		logger.Warningf("cannot unmarshal eureka error: %v", err)
+		logger.Warning("cannot unmarshal eureka error: %v", err)
 		return err
 	}
 

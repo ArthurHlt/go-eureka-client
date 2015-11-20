@@ -1,55 +1,21 @@
 package eureka
 
 import (
-	"fmt"
+	"github.com/ArthurHlt/gominlog"
 	"log"
-	"os"
-	"strings"
 )
 
-var logger *eurekaLogger
-
-func SetLogger(l *log.Logger) {
-	logger = &eurekaLogger{l}
-}
+var logger *gominlog.MinLog
 
 func GetLogger() *log.Logger {
-	return logger.log
+	return logger.GetLogger()
 }
 
-type eurekaLogger struct {
-	log *log.Logger
-}
-
-func (p *eurekaLogger) Debug(args ...interface{}) {
-	msg := "DEBUG: " + fmt.Sprint(args...)
-	p.log.Println(msg)
-}
-
-func (p *eurekaLogger) Debugf(f string, args ...interface{}) {
-	msg := "DEBUG: " + fmt.Sprintf(f, args...)
-	// Append newline if necessary
-	if !strings.HasSuffix(msg, "\n") {
-		msg = msg + "\n"
-	}
-	p.log.Print(msg)
-}
-
-func (p *eurekaLogger) Warning(args ...interface{}) {
-	msg := "WARNING: " + fmt.Sprint(args...)
-	p.log.Println(msg)
-}
-
-func (p *eurekaLogger) Warningf(f string, args ...interface{}) {
-	msg := "WARNING: " + fmt.Sprintf(f, args...)
-	// Append newline if necessary
-	if !strings.HasSuffix(msg, "\n") {
-		msg = msg + "\n"
-	}
-	p.log.Print(msg)
+func SetLogger(loggerLog *log.Logger) {
+	logger.SetLogger(loggerLog)
 }
 
 func init() {
 	// Default logger uses the go default log.
-	SetLogger(log.New(os.Stdout, "go-eureka", log.LstdFlags))
+	logger = gominlog.NewClassicMinLogWithPackageName("go-eureka-client")
 }
