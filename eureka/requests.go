@@ -106,6 +106,8 @@ func NewRawRequest(method, relativePath string, body []byte, cancel <-chan bool)
 func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *InstanceInfo {
 	dataCenterInfo := &DataCenterInfo{
 		Name: "MyOwn",
+		Class:    "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+		Metadata: nil,
 	}
 	leaseInfo := &LeaseInfo{
 		EvictionDurationInSecs: ttl,
