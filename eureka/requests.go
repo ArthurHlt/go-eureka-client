@@ -67,7 +67,7 @@ type InstanceInfo struct {
 type DataCenterInfo struct {
 	Name     string             `xml:"name" json:"name"`
 	Class    string             `xml:"class,attr" json:"@class"`
-	Metadata DataCenterMetadata `xml:"metadata,omitempty" json:"metadata,omitempty"`
+	Metadata *DataCenterMetadata `xml:"metadata,omitempty" json:"metadata,omitempty"`
 }
 
 type DataCenterMetadata struct {
