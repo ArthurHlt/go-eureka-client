@@ -7,10 +7,12 @@ import (
 
 const (
 	ErrCodeEurekaNotReachable = 501
+	ErrCodeInstanceNotFound   = 502
 )
 
 var (
 	errorMap = map[int]string{
+		ErrCodeInstanceNotFound:   "Instance resource not found",
 		ErrCodeEurekaNotReachable: "All the given peers are not reachable",
 	}
 )
