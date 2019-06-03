@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net"
@@ -273,7 +274,7 @@ func (c *Client) internalSyncCluster(machines []string) bool {
 			// the first one in the machine list is the leader
 			c.Cluster.switchLeader(0)
 
-			logger.Debug("sync.machines " + strings.Join(c.Cluster.Machines, ", "))
+			logrus.Debug("sync.machines " + strings.Join(c.Cluster.Machines, ", "))
 			return true
 		}
 	}
